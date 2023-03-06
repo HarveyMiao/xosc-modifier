@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+  <FileHeader author="SimOne" date="2023-01-11T16:15:01" description="" revMajor="2" revMinor="2" />
+  <CatalogLocations />
+  <RoadNetwork>
+    <LogicFile filepath="f0905aa0-918a-11ed-aff0-511eee9fe1af.xodr" />
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <Vehicle name="aeb" vehicleCategory="car">
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.48" length="4.93" width="1.86" />
+        </BoundingBox>
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <Properties>
+          <Property name="model" value="aeb" />
+          <Property name="category" value="Ego" />
+          <Property name="name" value="AEB" />
+          <Property name="obuId" value="0" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+      <ObjectController>
+        <Controller name="AEB">
+          <Properties>
+            <Property name="name" value="AEB" />
+          </Properties>
+        </Controller>
+      </ObjectController>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction><EnvironmentAction><Environment name="sunny01"><TimeOfDay animation="false" dateTime="2023-01-11T14:06:00" /><Weather cloudState="free"><Sun azimuth="0" elevation="1.57" intensity="60000" /><Fog visualRange="1200" /><Precipitation intensity="0" precipitationType="dry" /></Weather><RoadCondition frictionScaleFactor="1"><Properties><Property name="humidityLevel" value="0.1" /><Property name="dirtyLevel" value="0.1" /></Properties></RoadCondition></Environment></EnvironmentAction></GlobalAction><Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="0" p="0" r="0" x="-95" y="-1.514" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="10" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ActivateControllerAction lateral="true" longitudinal="true" />
+          </PrivateAction>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="Story">
+      <Act name="Act">
+        <ManeuverGroup maximumExecutionCount="1" name="Ego">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego" />
+          </Actors>
+          <Maneuver name="Maneuver">
+            <Event name="TrajectoryEvent0" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent0"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory0"><Shape><Clothoid curvature="-0.002501996308117075" curvatureDot="0.0016679959724956437" length="3.0000028170007926" startTime="0" stopTime="1"><Position><WorldPosition h="1.3542168058578167e-15" p="0" r="0" x="-95.0" y="-1.514" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger />
+            </Event><Event name="TrajectoryEvent1" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent1"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory1"><Shape><Clothoid curvature="-0.00749390079764174" curvatureDot="0.004995891779810333" length="3.000025271935099" startTime="1" stopTime="2"><Position><WorldPosition h="-5.087961877014051e-16" p="0" r="0" x="-92.0" y="-1.517753" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent1"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent0" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent2" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent2"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory2"><Shape><Clothoid curvature="-0.012470876130248653" curvatureDot="0.00831372346169624" length="3.0000699897477583" startTime="2" stopTime="3"><Position><WorldPosition h="0.0" p="0" r="0" x="-89.0" y="-1.528994" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent2"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent1" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent3" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent3"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory3"><Shape><Clothoid curvature="-0.017578386146934747" curvatureDot="0.011718380882058932" length="3.0001390676501956" startTime="3" stopTime="4"><Position><WorldPosition h="-8.551432256250018e-16" p="0" r="0" x="-86.0" y="-1.547701" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent3"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent2" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent4" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent4"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory4"><Shape><Clothoid curvature="-0.022446200316659524" curvatureDot="0.01496300248262105" length="3.000226771696357" startTime="4" stopTime="5"><Position><WorldPosition h="1.4157324532887516e-16" p="0" r="0" x="-83.0" y="-1.5740705" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent4"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent3" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent5" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent5"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory5"><Shape><Clothoid curvature="-0.02750262807029835" curvatureDot="0.018333004680389297" length="3.000340484254312" startTime="5" stopTime="6"><Position><WorldPosition h="-3.4789282444124736e-16" p="0" r="0" x="-80.0" y="-1.6077438" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent5"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent4" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent6" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent6"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory6"><Shape><Clothoid curvature="-0.032555795926473" curvatureDot="0.021700412460755575" length="3.0004771554779435" startTime="6" stopTime="7"><Position><WorldPosition h="-1.7159425081034926e-15" p="0" r="0" x="-77.0" y="-1.6490051" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent6"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent5" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent7" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent7"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory7"><Shape><Clothoid curvature="-0.03736269777312523" curvatureDot="0.024903247531584103" length="3.0006285506129102" startTime="7" stopTime="8"><Position><WorldPosition h="-1.7054123295137665e-15" p="0" r="0" x="-74.0" y="-1.697851" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent7"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent6" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent8" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent8"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory8"><Shape><Clothoid curvature="-0.042472924593042014" curvatureDot="0.028307617505641838" length="3.0008123844810455" startTime="8" stopTime="9"><Position><WorldPosition h="2.022352992757336e-16" p="0" r="0" x="-71.0" y="-1.7539135" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent8"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent7" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent9" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent9"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory9"><Shape><Clothoid curvature="-0.04475069658783344" curvatureDot="0.02795524926105776" length="3.2015952474566274" startTime="9" stopTime="10"><Position><WorldPosition h="-2.13414058958029e-15" p="0" r="0" x="-68.0" y="-1.81765" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent9"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent8" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent10" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent10"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory10"><Shape><Clothoid curvature="-0.010902214633775182" curvatureDot="0.0015794919043596936" length="13.804711000649082" startTime="10" stopTime="11"><Position><WorldPosition h="-4.76294823298171e-16" p="0" r="0" x="-64.7995" y="-1.89408948" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent10"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent9" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent11" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent11"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory11"><Shape><Clothoid curvature="-0.00936564408649406" curvatureDot="0.0011646941834400472" length="16.082580680246373" startTime="11" stopTime="12"><Position><WorldPosition h="0.0" p="0" r="0" x="-51.0" y="-2.24030605" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent11"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent10" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event></Maneuver>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition conditionEdge="rising" delay="0" name="start">
+              <ByValueCondition>
+                <SimulationTimeCondition rule="greaterThan" value="0" />
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition conditionEdge="none" delay="0" name="end">
+          <ByValueCondition>
+            <SimulationTimeCondition rule="greaterThan" value="666" />
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>
