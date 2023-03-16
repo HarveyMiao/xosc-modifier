@@ -1,7 +1,7 @@
 '''
 Author: Haihui Miao
 Date: 2023/2/1
-Last Updated: 2023/2/6
+Last Updated: 2023/3/16
 Python version: 3.8.15
 Purpose: 批量修改或创建OpenScenario文件 (基于OpenScenario 1.4测试)
 Comment: 主车替换功能不完备(无从获取主车的某些参数, 包括Bounding Box, maxAcceleration等), 建议还是用51进行替换。
@@ -124,7 +124,7 @@ def change_gvt(tree: ET.ElementTree, new_agent: str):
     agents = agent_dict['agent_type']
     agent_name = [agent for agent in agents.keys() if new_agent in agent]
     if len(agent_name) > 1:
-        print("Error: 输入的对手车的名字匹配到复数目标, 请输入更精准的名字\n程序终止...")
+        print("Error: 输入的对手车名字匹配到复数目标, 请输入更精准的名字\n程序终止...")
         input('Press Enter to exit...')
         exit()
     elif len(agent_name) == 0:
