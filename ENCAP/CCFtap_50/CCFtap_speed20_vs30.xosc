@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+  <FileHeader author="SimOne" date="2022-03-08T14:28:18" description="" revMajor="2" revMinor="2" />
+  <CatalogLocations />
+  <RoadNetwork>
+    <LogicFile filepath="6d4fad15-2e8e-4025-8517-8eb42881b514.xodr" />
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <Vehicle name="64a05cf0-0186-11ed-aa09-bf06060babbd" vehicleCategory="car">
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.48" length="4.93" width="1.86" />
+        </BoundingBox>
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <Properties>
+          <Property name="model" value="64a05cf0-0186-11ed-aa09-bf06060babbd" />
+          <Property name="category" value="Ego" />
+          <Property name="name" value="主车VIO_MIX" />
+          <Property name="obuId" value="0" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+    <ScenarioObject name="63a5d810-32a1-11ed-8bf5-a143728e9488">
+      <Vehicle name="003-Ampera" vehicleCategory="car">
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.53719208" length="3.7265841699999998" width="1.9377825899999999" />
+        </BoundingBox>
+        <Properties>
+          <Property name="model" value="003-Ampera" />
+          <Property name="category" value="vehicle" />
+          <Property name="name" value="AudiA2" />
+          <Property name="obuId" value="2" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction><EnvironmentAction><Environment name="sunny01"><TimeOfDay animation="false" dateTime="2022-03-08T14:00:00" /><Weather cloudState="free"><Sun azimuth="0" elevation="1.57" intensity="60000" /><Fog visualRange="1200" /><Precipitation intensity="0" precipitationType="dry" /></Weather><RoadCondition frictionScaleFactor="1"><Properties><Property name="humidityLevel" value="0.1" /><Property name="dirtyLevel" value="0.1" /></Properties></RoadCondition></Environment></EnvironmentAction></GlobalAction><Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="0" p="0" r="0" x="-45" y="-1.7500000000000002" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="5.5555556" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ActivateControllerAction lateral="true" longitudinal="true" />
+          </PrivateAction>
+        </Private>
+        <Private entityRef="63a5d810-32a1-11ed-8bf5-a143728e9488">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="3.141592653589793" p="0" r="0" x="55.2" y="1.7500000000000002" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="8.3333333" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+        </Actions>
+    </Init>
+    <Story name="Story">
+      <Act name="Act">
+        <ManeuverGroup maximumExecutionCount="1" name="Ego">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego" />
+          </Actors>
+          <Maneuver name="Maneuver">
+            <Event name="TrajectoryEvent0" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent0"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory0"><Shape><Clothoid curvature="1.9452885501884923e-18" curvatureDot="-1.4866553688868875e-19" length="26.17" startTime="0" stopTime="1"><Position><WorldPosition h="0.0" p="0" r="0" x="-45.0" y="-1.7500000000000002" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger />
+            </Event><Event name="TrajectoryEvent1" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent1"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory1"><Shape><Clothoid curvature="0.0694716799087144" curvatureDot="-0.012564363790896493" length="11.058527286363692" startTime="1" stopTime="2"><Position><WorldPosition h="0.0" p="0" r="0" x="-18.83" y="-1.75" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent1"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent0" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent2" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent2"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory2"><Shape><Clothoid curvature="0.14690714769323948" curvatureDot="-0.0032594750971618167" length="12.390045752090524" startTime="2" stopTime="3"><Position><WorldPosition h="0.0" p="0" r="0" x="-7.88" y="-0.34" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent2"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent1" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent3" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent3"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory3"><Shape><Clothoid curvature="-0.10083186553125117" curvatureDot="0.018038984115756898" length="11.187220600691246" startTime="3" stopTime="4"><Position><WorldPosition h="1.57" p="0" r="0" x="-0.34" y="7.88" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent3"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent2" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent4" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent4"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory4"><Shape><Clothoid curvature="2.753727446044377e-10" curvatureDot="-2.1044911596647738e-11" length="26.17" startTime="4" stopTime="5"><Position><WorldPosition h="1.5707963267948948" p="0" r="0" x="1.75" y="18.83" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent4"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent3" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event></Maneuver>
+        </ManeuverGroup>
+        <ManeuverGroup maximumExecutionCount="1" name="63a5d810-32a1-11ed-8bf5-a143728e9488">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="63a5d810-32a1-11ed-8bf5-a143728e9488" />
+          </Actors>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition conditionEdge="none" delay="0" name="start">
+              <ByValueCondition>
+                <SimulationTimeCondition rule="greaterThan" value="0" />
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition conditionEdge="none" delay="0" name="end">
+          <ByValueCondition>
+            <SimulationTimeCondition rule="greaterThan" value="25" />
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>

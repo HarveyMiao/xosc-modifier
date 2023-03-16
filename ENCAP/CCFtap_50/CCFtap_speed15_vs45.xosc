@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+  <FileHeader author="SimOne" date="2022-03-08T14:28:18" description="" revMajor="2" revMinor="2" />
+  <CatalogLocations />
+  <RoadNetwork>
+    <LogicFile filepath="6d4fad15-2e8e-4025-8517-8eb42881b514.xodr" />
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <Vehicle name="64a05cf0-0186-11ed-aa09-bf06060babbd" vehicleCategory="car">
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.48" length="4.93" width="1.86" />
+        </BoundingBox>
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <Properties>
+          <Property name="model" value="64a05cf0-0186-11ed-aa09-bf06060babbd" />
+          <Property name="category" value="Ego" />
+          <Property name="name" value="主车VIO_MIX" />
+          <Property name="obuId" value="0" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+    <ScenarioObject name="42e0e3d0-e0e5-11ec-a1fd-cf31010d4ed4">
+      <Vehicle name="003-Ampera" vehicleCategory="car">
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.53719208" length="3.7265841699999998" width="1.9377825899999999" />
+        </BoundingBox>
+        <Properties>
+          <Property name="model" value="003-Ampera" />
+          <Property name="category" value="vehicle" />
+          <Property name="name" value="AudiA2" />
+          <Property name="obuId" value="1" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction><EnvironmentAction><Environment name="sunny01"><TimeOfDay animation="false" dateTime="2022-03-08T14:00:00" /><Weather cloudState="free"><Sun azimuth="0" elevation="1.57" intensity="60000" /><Fog visualRange="1200" /><Precipitation intensity="0" precipitationType="dry" /></Weather><RoadCondition frictionScaleFactor="1"><Properties><Property name="humidityLevel" value="0.1" /><Property name="dirtyLevel" value="0.1" /></Properties></RoadCondition></Environment></EnvironmentAction></GlobalAction><Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="0" p="0" r="0" x="-30" y="-1.7500000000000002" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="4.1666667" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ActivateControllerAction lateral="true" longitudinal="true" />
+          </PrivateAction>
+        </Private>
+        <Private entityRef="42e0e3d0-e0e5-11ec-a1fd-cf31010d4ed4">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="3.141592653589793" p="0" r="0" x="78" y="1.7500000000000002" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="12.5" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="Story">
+      <Act name="Act">
+        <ManeuverGroup maximumExecutionCount="1" name="Ego">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego" />
+          </Actors>
+          <Maneuver name="Maneuver">
+            <Event name="TrajectoryEvent0" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent0"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory0"><Shape><Clothoid curvature="5.523935060986122e-18" curvatureDot="-7.113889325159204e-19" length="15.53" startTime="0" stopTime="1"><Position><WorldPosition h="0.0" p="0" r="0" x="-30.0" y="-1.7500000000000002" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger />
+            </Event><Event name="TrajectoryEvent1" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent1"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory1"><Shape><Clothoid curvature="0.08717590091266629" curvatureDot="-0.020567658480312896" length="8.476988374355784" startTime="1" stopTime="2"><Position><WorldPosition h="0.0" p="0" r="0" x="-14.47" y="-1.75" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent1"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent0" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent2" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent2"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory2"><Shape><Clothoid curvature="0.14720276439917146" curvatureDot="7.492181907626283e-05" length="10.64214850658951" startTime="2" stopTime="3"><Position><WorldPosition h="0.0" p="0" r="0" x="-6.07" y="-0.71" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent2"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent1" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event><Event name="TrajectoryEvent3" priority="overwrite"><Action name="TrajectoryActionInTrajectoryEvent3"><PrivateAction><RoutingAction><FollowTrajectoryAction><Trajectory closed="false" name="Trajectory3"><Shape><Clothoid curvature="-0.08697164943240465" curvatureDot="0.020495510829260356" length="8.48689746324742" startTime="3" stopTime="4"><Position><WorldPosition h="1.5707963267948948" p="0" r="0" x="0.71" y="6.06" z="0" /></Position></Clothoid></Shape></Trajectory><TimeReference><None /></TimeReference><TrajectoryFollowingMode followingMode="follow" /></FollowTrajectoryAction></RoutingAction></PrivateAction></Action><StartTrigger><ConditionGroup><Condition conditionEdge="none" delay="0" name="StartConditionOfTrajectoryEvent3"><ByValueCondition><StoryboardElementStateCondition state="completeState" storyboardElementRef="TrajectoryEvent2" storyboardElementType="event" /></ByValueCondition></Condition></ConditionGroup></StartTrigger></Event></Maneuver>
+        </ManeuverGroup>
+        <ManeuverGroup maximumExecutionCount="1" name="42e0e3d0-e0e5-11ec-a1fd-cf31010d4ed4">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="42e0e3d0-e0e5-11ec-a1fd-cf31010d4ed4" />
+          </Actors>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition conditionEdge="none" delay="0" name="start">
+              <ByValueCondition>
+                <SimulationTimeCondition rule="greaterThan" value="0" />
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition conditionEdge="none" delay="0" name="end">
+          <ByValueCondition>
+            <SimulationTimeCondition rule="greaterThan" value="25" />
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>

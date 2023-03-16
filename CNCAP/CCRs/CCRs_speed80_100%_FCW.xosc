@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+  <FileHeader author="SimOne" date="2022-01-04T17:35:03" description="" revMajor="2" revMinor="2" />
+  <CatalogLocations />
+  <RoadNetwork>
+    <LogicFile filepath="0dfd9ecd-1783-4173-866d-721463b4f37b.xodr" />
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <Vehicle name="8d4c6ba0-0184-11ed-aa09-bf06060babbd" vehicleCategory="car">
+        <BoundingBox>
+          <Center x="-1.4" y="0" z="0" />
+          <Dimensions height="1.73" length="4.57" width="2.21" />
+        </BoundingBox>
+        <Performance maxAcceleration="200" maxDeceleration="10" maxSpeed="69.444" />
+        <Axles>
+          <FrontAxle maxSteering="0.5" positionX="3.1" positionZ="0.3" trackWidth="1.8" wheelDiameter="0.6" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0.3" trackWidth="1.8" wheelDiameter="0.6" />
+        </Axles>
+        <Properties>
+          <Property name="model" value="8d4c6ba0-0184-11ed-aa09-bf06060babbd" />
+          <Property name="category" value="Ego" />
+          <Property name="name" value="主车VIO" />
+          <Property name="obuId" value="0" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+    <ScenarioObject name="4b49ffe0-6d43-11ec-b407-839eefa8dbe5">
+      <Vehicle name="001-AcuraRL" vehicleCategory="car">
+        <Performance maxAcceleration="0" maxDeceleration="0" maxSpeed="0" />
+        <Axles>
+          <FrontAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0" trackWidth="0" wheelDiameter="0" />
+        </Axles>
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.48014465" length="4.80796478" width="2.23913635" />
+        </BoundingBox>
+        <Properties>
+          <Property name="model" value="001-AcuraRL" />
+          <Property name="category" value="vehicle" />
+          <Property name="name" value="AcuraRL" />
+          <Property name="obuId" value="1" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction><EnvironmentAction><Environment name="sunny01"><TimeOfDay animation="false" dateTime="2022-01-04T14:00:00" /><Weather cloudState="free"><Sun azimuth="0" elevation="1.57" intensity="60000" /><Fog visualRange="1200" /><Precipitation intensity="0" precipitationType="dry" /></Weather><RoadCondition frictionScaleFactor="1"><Properties><Property name="humidityLevel" value="0.1" /><Property name="dirtyLevel" value="0.1" /></Properties></RoadCondition></Environment></EnvironmentAction></GlobalAction><Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="1.5707963267948966" p="0" r="0" x="1.7500000000000122" y="-200" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="22.22222222" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ActivateControllerAction lateral="true" longitudinal="true" />
+          </PrivateAction>
+        </Private>
+        <Private entityRef="4b49ffe0-6d43-11ec-b407-839eefa8dbe5">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="1.5707963267948966" p="0" r="0" x="1.75" y="-50" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="0" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="Story">
+      <Act name="Act">
+        <ManeuverGroup maximumExecutionCount="1" name="Ego">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego" />
+          </Actors>
+        </ManeuverGroup>
+        <ManeuverGroup maximumExecutionCount="1" name="4b49ffe0-6d43-11ec-b407-839eefa8dbe5">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="4b49ffe0-6d43-11ec-b407-839eefa8dbe5" />
+          </Actors>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition conditionEdge="none" delay="0" name="start">
+              <ByValueCondition>
+                <SimulationTimeCondition rule="greaterThan" value="0" />
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition conditionEdge="none" delay="0" name="end">
+          <ByValueCondition>
+            <SimulationTimeCondition rule="greaterThan" value="15" />
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>

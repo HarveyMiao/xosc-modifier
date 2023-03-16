@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSCENARIO>
+  <FileHeader author="SimOne" date="2021-07-22T14:35:39" description="" revMajor="2" revMinor="0" />
+  <CatalogLocations />
+  <RoadNetwork>
+    <LogicFile filepath="0dfd9ecd-1783-4173-866d-721463b4f37b.xodr" />
+  </RoadNetwork>
+  <Entities>
+    <ScenarioObject name="Ego">
+      <Vehicle name="5169ef70-0b36-11ed-acca-af065242a8a8" vehicleCategory="car">
+        <BoundingBox>
+          <Center x="-1.4" y="0" z="0" />
+          <Dimensions height="1.48" length="4.93" width="1.86" />
+        </BoundingBox>
+        <Performance maxAcceleration="200" maxDeceleration="10" maxSpeed="69.444" />
+        <Axles>
+          <FrontAxle maxSteering="0.5" positionX="3.1" positionZ="0.3" trackWidth="1.8" wheelDiameter="0.6" />
+          <RearAxle maxSteering="0" positionX="0" positionZ="0.3" trackWidth="1.8" wheelDiameter="0.6" />
+        </Axles>
+        <Properties>
+          <Property name="model" value="5169ef70-0b36-11ed-acca-af065242a8a8" />
+          <Property name="category" value="Ego" />
+          <Property name="name" value="4k-畸变" />
+          <Property name="obuId" value="0" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Vehicle>
+    </ScenarioObject>
+    <ScenarioObject name="a1de0950-eab7-11eb-9646-ef66da938a8d">
+      <Pedestrian mass="0" model="" name="Ped05" pedestrianCategory="pedestrian">
+        <BoundingBox>
+          <Center x="0" y="0" z="0" />
+          <Dimensions height="1.8270944199999999" length="0.5973388700000001" width="0.18268982" />
+        </BoundingBox>
+        <Properties>
+          <Property name="model" value="Ped05" />
+          <Property name="category" value="pedestrian" />
+          <Property name="name" value="Ped00" />
+          <Property name="obuId" value="1" />
+          <Property name="obu_enabled" value="false" />
+        </Properties>
+      </Pedestrian>
+    </ScenarioObject>
+  </Entities>
+  <Storyboard>
+    <Init>
+      <Actions>
+        <GlobalAction><EnvironmentAction><Environment name="sunny05"><TimeOfDay animation="false" dateTime="2021-07-22T22:00:00" /><Weather cloudState="free"><Sun azimuth="0" elevation="1.57" intensity="60000" /><Fog visualRange="1200" /><Precipitation intensity="0" precipitationType="dry" /></Weather><RoadCondition frictionScaleFactor="1"><Properties><Property name="humidityLevel" value="0.1" /><Property name="dirtyLevel" value="0.1" /></Properties></RoadCondition></Environment></EnvironmentAction></GlobalAction><Private entityRef="Ego">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="1.5707963267948966" p="0" r="0" x="1.75" y="-200" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="13.8888889" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+          <PrivateAction>
+            <ActivateControllerAction lateral="true" longitudinal="true" />
+          </PrivateAction>
+        </Private>
+        <Private entityRef="a1de0950-eab7-11eb-9646-ef66da938a8d">
+          <PrivateAction>
+            <TeleportAction>
+              <Position>
+                <WorldPosition h="1.5707963267948966" p="0" r="0" x="2.2" y="-30" z="0" />
+              </Position>
+            </TeleportAction>
+          </PrivateAction>
+          <PrivateAction>
+            <LongitudinalAction>
+              <SpeedAction>
+                <SpeedActionDynamics dynamicsDimension="rate" dynamicsShape="step" value="0" />
+                <SpeedActionTarget>
+                  <AbsoluteTargetSpeed value="0" />
+                </SpeedActionTarget>
+              </SpeedAction>
+            </LongitudinalAction>
+          </PrivateAction>
+        </Private>
+      </Actions>
+    </Init>
+    <Story name="Story">
+      <Act name="Act">
+        <ManeuverGroup maximumExecutionCount="1" name="Ego">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="Ego" />
+          </Actors>
+        </ManeuverGroup>
+        <ManeuverGroup maximumExecutionCount="1" name="a1de0950-eab7-11eb-9646-ef66da938a8d">
+          <Actors selectTriggeringEntities="false">
+            <EntityRef entityRef="a1de0950-eab7-11eb-9646-ef66da938a8d" />
+          </Actors>
+          <Maneuver name="Maneuver">
+            <Event maximumExecutionCount="1" name="事件" priority="overwrite">
+              <Action name="0c9359b7-8c14-45fb-a13e-057a4c4ef398">
+                <PrivateAction>
+                  <LongitudinalAction>
+                    <SpeedAction>
+                      <SpeedActionDynamics dynamicsDimension="distance" dynamicsShape="linear" value="1" />
+                      <SpeedActionTarget>
+                        <AbsoluteTargetSpeed value="1.38889" />
+                      </SpeedActionTarget>
+                    </SpeedAction>
+                  </LongitudinalAction>
+                </PrivateAction>
+              </Action>
+              <StartTrigger>
+                <ConditionGroup>
+                  <Condition conditionEdge="none" delay="0" name="到达位置">
+                    <ByEntityCondition>
+                      <EntityCondition>
+                        <ReachPositionCondition tolerance="0.2">
+                          <Position>
+                            <WorldPosition h="0" p="0" r="0" x="1.75" y="-142.35998" z="0" />
+                          </Position>
+                        </ReachPositionCondition>
+                      </EntityCondition>
+                      <TriggeringEntities triggeringEntitiesRule="any">
+                        <EntityRef entityRef="Ego" />
+                      </TriggeringEntities>
+                    </ByEntityCondition>
+                  </Condition>
+                </ConditionGroup>
+              </StartTrigger>
+            </Event>
+          </Maneuver>
+        </ManeuverGroup>
+        <StartTrigger>
+          <ConditionGroup>
+            <Condition conditionEdge="none" delay="0" name="start">
+              <ByValueCondition>
+                <SimulationTimeCondition rule="greaterThan" value="0" />
+              </ByValueCondition>
+            </Condition>
+          </ConditionGroup>
+        </StartTrigger>
+      </Act>
+    </Story>
+    <StopTrigger>
+      <ConditionGroup>
+        <Condition conditionEdge="none" delay="0" name="end">
+          <ByValueCondition>
+            <SimulationTimeCondition rule="greaterThan" value="25" />
+          </ByValueCondition>
+        </Condition>
+      </ConditionGroup>
+    </StopTrigger>
+  </Storyboard>
+</OpenSCENARIO>
