@@ -1,20 +1,22 @@
 '''
 Author: Haihui Miao
 Date: 2023/2/1
-Last Updated: 2023/3/16
+Last Updated: 2023/2/6
 Python version: 3.8.15
 Purpose: 批量修改或创建OpenScenario文件 (基于OpenScenario 1.4测试)
 Comment: 主车替换功能不完备(无从获取主车的某些参数, 包括Bounding Box, maxAcceleration等), 建议还是用51进行替换。
 '''
 import xml.etree.ElementTree as ET
+from itertools import product as cartesianProduct
 import json
 import os
 import zipfile
 import platform
+from global_var import *
 
 INIT_PRIVATE_XPATH = "./Storyboard/Init/Actions/Private"
 EGO_INIT_VEL_XPATH = INIT_PRIVATE_XPATH + "//LongitudinalAction//AbsoluteTargetSpeed"
-GVT_INIT_POS_XPATH = "./Storyboard/Init/Actions/Private/"
+EGO_INIT_POS_XPATH = INIT_PRIVATE_XPATH + "[@entityRef='Ego']//WorldPosition"
 STOP_TRIGGER_XPATH = ".//StopTrigger//SimulationTimeCondition"
 EGO_MODEL_XPATH = ".//Entities/ScenarioObject[@name='Ego']"
 EGO_NAME_XPATH = EGO_MODEL_XPATH + "/Vehicle"
@@ -27,14 +29,26 @@ AGENT_BOUNDINGBOX_XPATH = AGENT_NAME_XPATH + "/BoundingBox"
 INIT_NEW_FOLDER_NAME = "new"                                            # 可以更改为更有意义的名字，改名字或作为新建文件夹的后缀
 NEW_FOLDER_NAME = INIT_NEW_FOLDER_NAME
 PATH_ = "./"
+OVERLAP_COUNT = 0
 
 def set_new_folder_suffix(name):
+    '''
+    修改放置新的xosc文件的文件夹
+    '''
     global INIT_NEW_FOLDER_NAME
     INIT_NEW_FOLDER_NAME = name if len(name) != 0 else "new"
 
-# 批量读取xosc文件名
-# 返回包含文件名的list
+def overlap_count():
+    global OVERLAP_COUNT
+    OVERLAP_COUNT = OVERLAP_COUNT + 1
+    return OVERLAP_COUNT
+
 def read_xosc(dirpath='./'):
+    '''
+    批量读取xosc文件名
+    @param dirpath: 文件路径，默认值为./
+    @return 包含xosc文件名的list
+    '''
     global PATH_
     global NEW_FOLDER_NAME    
 
@@ -51,24 +65,51 @@ def read_xosc(dirpath='./'):
 
 # 创建一个新文件夹，并把结果存放进去
 def write_xosc(tree: ET.ElementTree, name):
+    '''
+    创建新文件夹, 并把xml写入进去
+    @param tree: 当前的ElementTree实例
+    @param name: 案例名
+    '''
     if not os.path.exists(NEW_FOLDER_NAME):
         os.mkdir(NEW_FOLDER_NAME)
     # 将新xosc写入指定文件中
     tree.write(f"{NEW_FOLDER_NAME}/{name}",encoding="UTF-8",xml_declaration=True,method="xml")
     print(f"已将更新后的 [{name}] 保存至路径 {NEW_FOLDER_NAME}")
 
-# 修改主车初速度
-def change_ego_init_velocity(tree: ET.ElementTree, target_speed):
-
+def change_ego_init_velocity(tree: ET.ElementTree, target_speed) -> ET.ElementTree:
+    '''
+    修改主车初速度
+    @param tree: 基准场景的ElementTree
+    @param target_speed:
+    @return tree: 修改后的ElementTree
+    '''
     OpenSCENARIO = tree.getroot()
     Ego_init_vel = OpenSCENARIO.find(EGO_INIT_VEL_XPATH)
     Ego_init_vel.set('value', target_speed)
     # print(Ego_init_vel.attrib)
     return tree
 
-# 根据偏置率修改对手车横坐标
-def change_gvt_init_pos(tree: ET.ElementTree, overlap: float, gvt_width: float):
+def change_ego_init_pos(tree: ET.ElementTree, target_pos: str):
+    '''
+    修改主车初始y轴位置
+    @param tree: 基准场景的ElementTree
+    @param target_pos:
+    @return tree: 修改后的ElementTree
+    '''
+    OpenSCENARIO = tree.getroot()
+    Ego_init_vel = OpenSCENARIO.find(EGO_INIT_POS_XPATH)
+    Ego_init_vel.set('y', target_pos)
+    # print(Ego_init_vel.attrib)
+    return tree
 
+def change_gvt_init_pos(tree: ET.ElementTree, overlap: float, gvt_width: float):
+    '''
+    根据偏置率修改对手车横坐标
+    @param tree: 基准场景的ElementTree
+    @param overlap: 偏置率
+    @param gvt_width: 主车宽度
+    @return tree: 修改后的ElementTree
+    '''
     root = tree.getroot()
     gvt = root.find(AGENT_MODEL_XPATH)
     gvt_ref = gvt.attrib['name']
@@ -78,8 +119,13 @@ def change_gvt_init_pos(tree: ET.ElementTree, overlap: float, gvt_width: float):
     world_position.set('x',str(datum_pos-overlap*gvt_width))
     return tree
 
-# 修改场景结束触发器
 def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
+    '''
+    修改场景结束时间
+    @param tree: 原场景的ElementTree
+    @param terminate_trigger_time: 修改后的结束时间
+    @return tree: 修改后的ElementTree
+    '''
     OpenSCENARIO = tree.getroot()
     terminate_trigger = OpenSCENARIO.find(STOP_TRIGGER_XPATH)
     terminate_trigger.set('value', terminate_trigger_time)
@@ -88,6 +134,13 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 # 修改主车模型，不建议用，无从获知boundingBox信息
 # 建议将场景导出51后，再在导入时批量修改主车模型
 def change_ego(tree: ET.ElementTree):
+    '''
+    修改主车模型\n
+    不建议用, 无从获知boundingBox信息。
+    建议将场景导出51后, 再在导入时批量修改主车模型
+    @param tree: 原场景的ElementTree
+    @return tree: 修改后的ElementTree
+    '''
     # 读取模型JSON文件
     model_file = [filename for filename in os.listdir("./") if "json" in filename ]
     try:
@@ -111,8 +164,13 @@ def change_ego(tree: ET.ElementTree):
     # controller_element.find("./Controller/Properties/Property").set('value',vmodel['controller']['name'])
     return tree
 
-# 修改对手车模型
 def change_gvt(tree: ET.ElementTree, new_agent: str):
+    '''
+    修改对手车模型
+    @param tree: 原场景的ElementTree
+    @param new_agent: 新对手车的名字
+    @return tree: 修改后的ElementTree
+    '''
     # 读取模型JSON文件
     try:
         with open(f"./agents.json",'r',encoding='utf-8') as fp:
@@ -124,7 +182,7 @@ def change_gvt(tree: ET.ElementTree, new_agent: str):
     agents = agent_dict['agent_type']
     agent_name = [agent for agent in agents.keys() if new_agent in agent]
     if len(agent_name) > 1:
-        print("Error: 输入的对手车名字匹配到复数目标, 请输入更精准的名字\n程序终止...")
+        print("Error: 输入的对手车的名字匹配到复数目标, 请输入更精准的名字\n程序终止...")
         input('Press Enter to exit...')
         exit()
     elif len(agent_name) == 0:
@@ -151,8 +209,14 @@ def change_gvt(tree: ET.ElementTree, new_agent: str):
     properties_element.find("./Property[@name='category']").set('value',agent['category'].lower())
     return tree
 
-# 获取指定数量的输入
 def get_params(info: str, number_of_params = 3):
+    '''
+    获取指定数量的输入
+    @param info: 输出的信息
+    @param number_of_params: 输入的数量
+    @return params: 获取的输入的列表
+    @return skip: 是否有输入
+    '''
     skip = True
     params = (input (info)).split(' ')
 
@@ -167,21 +231,25 @@ def get_params(info: str, number_of_params = 3):
 # 基于基准场景生成新场景的名字
 def generate_scenario_name(datum: str, speed: str, overlap_rate: str=None):
     filename = datum.partition('.xosc')[0]
-    casename = datum.split('_')
+    casename = filename.split('_')
     if speed != None:
         index = [i for i, j in enumerate(casename) if 'speed' in j]
         casename[index[0]] = 'speed'+ speed
     if overlap_rate != None:
         # change the raw overlap rate to specific name
         if float(overlap_rate) > 0:
-            overlap_name = str(100 - overlap_rate * 100)
+            overlap_name = "+" + str(100 - float(overlap_rate) * 100)
         elif float(overlap_rate) < 0:
-            overlap_name = str(-100 - overlap_rate * 100)
+            overlap_name = str(-100 - float(overlap_rate) * 100)
         else:
-            overlap_name = '100'
+            overlap_name = '+100'
         # update the file name
         index = [i for i, j in enumerate(casename) if '%' in j]
-        casename[index[0]] = overlap_name + '%'
+        if len(index) != 0:
+            casename[index[0]] = overlap_name + '%'
+        else:
+            index = [i for i, j in enumerate(casename) if 'speed' in j]
+            casename.insert(index[0] + 1, overlap_name + '%')
     return '_'.join(casename) + '.xosc'
 
 # 批量修改模块
@@ -193,7 +261,7 @@ class Batch_modifier:
         self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
         self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
         self.ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
-    
+
     def batch_modify(self, fnames):
         # 获取参数
         # print("批量修改功能已启动~")
@@ -208,10 +276,11 @@ class Batch_modifier:
         for fname in fnames:
             # tree = ET.parse(fname)
             tree = ET.parse(os.path.join(PATH_,fname))
-            if len(self.speed) != 0:
-                fname = generate_scenario_name(fname,speed) 
-                speed = str(float(speed)/3.6)
-                tree = change_ego_init_velocity(tree, speed)
+            if len(self.speed) != 0: 
+                # fname = generate_scenario_name(fname, self.speed)
+                fname = generate_scenario_name(fname, "30")
+                speedm = str(float(self.speed)/3.6)
+                tree = change_ego_init_velocity(tree, speedm)
             if len(self.end_trigger_time) != 0:
                 tree = change_end_trigger(tree, self.end_trigger_time)
             if self.ego == 'y' or self.ego == 'Y':
@@ -232,25 +301,37 @@ def generalize(base):
     root = datum.getroot()
     datum_vel = root.find(EGO_INIT_VEL_XPATH)
     if skip_speed:
-        speeds = datum_vel.attrib['value']
+        speeds = [datum_vel.attrib['value']]
     else:
         speeds = [str(num/3.6) for num in range(int(speed_settings[0]),int(speed_settings[1]+1),int(speed_settings[2]))]
     if skip_overlap:
         overlaps = [0]
     else:
         overlaps = [num/100.0 for num in range(int(overlap_settings[0]),int(overlap_settings[1]+1),int(overlap_settings[2]))] 
+    
     # 逐项泛化
-    for speed in speeds:
-        for overlap in overlaps:   
-            change_ego_init_velocity(datum, speed)
-            # write_xosc(datum, generate_scenario_name(base,speed=str(float(speed)*3.6)))
-            if not skip_overlap:
-                change_gvt_init_pos(datum, overlap, overlap_settings[3])
-                write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6)), overlap_rate=str(overlap)))
-            else:
-                write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6))))
-        pass
+    params_set = list(cartesianProduct(speeds,overlaps))
+    for params in params_set:
+        speed = params[0]
+        overlap = params[1]
+        # print(f"({speed}, {overlap})")
+        change_ego_init_velocity(datum, speed)
+        if not skip_overlap:
+            change_gvt_init_pos(datum, overlap, overlap_settings[3])
+            write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6)), overlap_rate=str(overlap)))
+        else:
+            write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6))))
 
+    # for speed in speeds:
+    #     for overlap in overlaps:   
+    #         change_ego_init_velocity(datum, speed)
+    #         # write_xosc(datum, generate_scenario_name(base,speed=str(float(speed)*3.6)))
+    #         if not skip_overlap:
+    #             change_gvt_init_pos(datum, overlap, overlap_settings[3])
+    #             write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6)), overlap_rate=str(overlap)))
+    #         else:
+    #             write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6))))
+    #     pass
 
 def do_zip_compress(dirpath):
     # 修改自： https://blog.csdn.net/qq_39816613/article/details/125338232
@@ -277,6 +358,13 @@ def is_new(dirpath):
         return True
     return False
 
+def delete_intermediate_folder():
+    if platform.system() == 'Linux':
+                os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
+    elif platform.system() == 'Windows':
+        win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
+        os.system(f"rmdir /s/q {win_path}")
+
 def main():
     # change_ego_init_velocity()
     set_new_folder_suffix( input("请输入新生成的场景所在文件夹的后缀(默认为new):") )
@@ -298,16 +386,16 @@ def main():
             do_zip_compress(NEW_FOLDER_NAME)
 
             if platform.system() == 'Linux':
-                os.system(f'rm -rf {NEW_FOLDER_NAME}')          # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
+                os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
             elif platform.system() == 'Windows':
-                win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))
+                win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
                 os.system(f"rmdir /s/q {win_path}")
 
     elif option == "2":
         fnames = read_xosc()
         generalize(fnames[0])
         do_zip_compress(NEW_FOLDER_NAME)
-    
+        delete_intermediate_folder()
 
 if __name__ == "__main__":
     
