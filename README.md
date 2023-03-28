@@ -17,3 +17,6 @@ Python Version: 3.8.15
 支持如下图所示的文件夹树结构  
 ![树状图](./image/file-tree.png "tree")
 2. 运行 ``python3 modifier.py`` 或打开目录下的modifier.exe
+## 使用示例
+### 示例1
+目标：批量修改
