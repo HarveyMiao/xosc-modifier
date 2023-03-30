@@ -1,0 +1,27 @@
+{
+    "auto_mode": true,
+    "suffix": "old",
+    "root_path": "./CNCAP/CCRs",
+    "_function_comment": "function 1为批量修改, 2为泛化",
+    "function": "2",
+    "batch_modify_params": {
+        "speed": "",
+        "end_trigger_time": "",
+        "gvt_name": "",
+        "_ego_comment": "y为更换主车, n为不更换",
+        "ego": "n"
+    },
+    "generalize_params": {
+        "speed_gen": {
+            "min_speed": "",
+            "max_speed": "",
+            "increment": ""
+        },
+        "overlap_gen": {
+            "min_overlap": "-50",
+            "max_overlap": "50",
+            "increment": "25",
+            "gvt_width": "3"
+        }
+    }
+}

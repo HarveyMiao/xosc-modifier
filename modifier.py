@@ -31,6 +31,21 @@ NEW_FOLDER_NAME = INIT_NEW_FOLDER_NAME
 PATH_ = "./"
 OVERLAP_COUNT = 0
 
+class JSON_Loader:
+    def __init__(self) -> None:
+        try:
+            print("读取config.json中...")
+            with open("./config.json", "+r", encoding="utf-8") as fp:
+                self.__config = json.load(fp)
+                print("读取完毕")
+        except OSError as e:
+            print(f"无法打开config.json: {e}")
+            print("启用手动输入模式")
+            self.__config = {"auto_mode": False}
+    @property
+    def config(self):
+        return self.__config
+    
 def set_new_folder_suffix(name):
     '''
     修改放置新的xosc文件的文件夹
@@ -61,6 +76,8 @@ def read_xosc(dirpath='./'):
     print(f"正在读取{dirpath}下的xosc...")
     files_name = [filename for filename in os.listdir(PATH_) if "xosc" in filename ]
     print (f"一共读取到{len(files_name)}个xosc文件\n读取到的xosc文件: {files_name}")
+    if len(files_name) == 0:
+        raise FileExistsError(f"at least one xosc required")
     return files_name
 
 # 创建一个新文件夹，并把结果存放进去
@@ -145,6 +162,7 @@ def change_ego(tree: ET.ElementTree):
     model_file = [filename for filename in os.listdir("./") if "json" in filename ]
     try:
         model_file.remove('agents.json')
+        model_file.remove('config.json')
     except:
         pass
     with open(f"./{model_file[0]}",'r', encoding='utf-8') as fp:
@@ -228,6 +246,25 @@ def get_params(info: str, number_of_params = 3):
         params = [float(param) for param in params]
     return params, skip
 
+def load_params(input_: dict, number_of_params = 3):
+    '''
+    从dict中获取指定数量的输入
+    @param info: 输入的dict
+    @param number_of_params: 输入的数量
+    @return params: 获取的输入的列表
+    @return skip: 是否有正确数量的输入
+    '''
+    skip = True
+    params = []
+    count = 0
+    for _, param in input_.items():
+        if param != "":
+            params.append(float(param))
+            count = count + 1
+    if count == number_of_params:
+        skip = False
+    return params, skip
+
 # 基于基准场景生成新场景的名字
 def generate_scenario_name(datum: str, speed: str, overlap_rate: str=None):
     filename = datum.partition('.xosc')[0]
@@ -238,9 +275,9 @@ def generate_scenario_name(datum: str, speed: str, overlap_rate: str=None):
     if overlap_rate != None:
         # change the raw overlap rate to specific name
         if float(overlap_rate) > 0:
-            overlap_name = "+" + str(100 - float(overlap_rate) * 100)
+            overlap_name = "+" + str(round(100 - float(overlap_rate) * 100))
         elif float(overlap_rate) < 0:
-            overlap_name = str(-100 - float(overlap_rate) * 100)
+            overlap_name = str(round(-100 - float(overlap_rate) * 100))
         else:
             overlap_name = '+100'
         # update the file name
@@ -261,17 +298,26 @@ class Batch_modifier:
         self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
         self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
         self.ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
+        self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
+    
+    def __init__(self, config: dict) -> None:
+        print("批量修改功能已启动~")
+        self.speed = config['batch_modify_params']['speed']
+        self.end_trigger_time = config['batch_modify_params']['end_trigger_time']
+        self.gvt = config['batch_modify_params']['gvt_name']
+        self.ego = config['batch_modify_params']['ego']
+        self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
+
+        if len(self.speed) != 0: 
+            print(f"速度将被修改为{self.speed} km/h")
+        if len(self.end_trigger_time) != 0: 
+            print(f"场景结束时间将被修改为{self.end_trigger_time} s")
+        if self.ego:
+            print(f"主车将被修改")
+        if len(self.gvt) != 0:
+            print(f"对手车将被修改为{self.gvt}")
 
     def batch_modify(self, fnames):
-        # 获取参数
-        # print("批量修改功能已启动~")
-        # print("接下来请输入需要统一修改的参数的值，不输入则默认为不修改")
-        # speed = input ("需要将速度修改为(km/h): ")
-        # end_trigger_time = input ("需要将结束触发器设置为(s): ")
-        # gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
-        # ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
-        # print("\n")
-        
         # 依次将需要修改的参数写入树中
         for fname in fnames:
             # tree = ET.parse(fname)
@@ -283,7 +329,7 @@ class Batch_modifier:
                 tree = change_ego_init_velocity(tree, speedm)
             if len(self.end_trigger_time) != 0:
                 tree = change_end_trigger(tree, self.end_trigger_time)
-            if self.ego == 'y' or self.ego == 'Y':
+            if self.ego:
                 tree = change_ego(tree)
             if len(self.gvt) != 0:
                 tree = change_gvt(tree,self.gvt)
@@ -291,11 +337,16 @@ class Batch_modifier:
 
 # 泛化模块
 def generalize(base):
+    global CONFIG
     print("泛化功能已启动~")
-    print("接下来请输入需要统一修改的参数的值，不输入则默认为不泛化\n======每个输入间请以空格隔开======")
-    speed_settings, skip_speed = get_params("请依次输入最低主车速度，最高主车速度，步进增量(km/h): ")
-    
-    overlap_settings, skip_overlap = get_params("(仅限C2C场景)请依次输入最低偏置率，最高偏置率, 步进增量(%), 对手车车宽(m): ", 4)
+    if CONFIG.config["auto_mode"]:
+        speed_settings, skip_speed = load_params(CONFIG.config["generalize_params"]["speed_gen"], 3)
+        overlap_settings, skip_overlap = load_params(CONFIG.config["generalize_params"]["overlap_gen"], 4)
+    else:
+        print("接下来请输入需要统一修改的参数的值，不输入则默认为不泛化\n======每个输入间请以空格隔开======")
+        speed_settings, skip_speed = get_params("请依次输入最低主车速度，最高主车速度，步进增量(km/h): ")
+        
+        overlap_settings, skip_overlap = get_params("(仅限C2C场景)请依次输入最低偏置率，最高偏置率, 步进增量(%), 对手车车宽(m): ", 4)
 
     datum = ET.parse(os.path.join(PATH_,base))
     root = datum.getroot()
@@ -303,11 +354,12 @@ def generalize(base):
     if skip_speed:
         speeds = [datum_vel.attrib['value']]
     else:
-        speeds = [str(num/3.6) for num in range(int(speed_settings[0]),int(speed_settings[1]+1),int(speed_settings[2]))]
+        speeds = []
+        speeds = [str(num/3.6) for num in range(int(speed_settings[0]),int(speed_settings[1])+int(speed_settings[2]),int(speed_settings[2]))]
     if skip_overlap:
         overlaps = [0]
     else:
-        overlaps = [num/100.0 for num in range(int(overlap_settings[0]),int(overlap_settings[1]+1),int(overlap_settings[2]))] 
+        overlaps = [num/100.0 for num in range(int(overlap_settings[0]),int(overlap_settings[1])+1,int(overlap_settings[2]))] 
     
     # 逐项泛化
     params_set = list(cartesianProduct(speeds,overlaps))
@@ -318,20 +370,9 @@ def generalize(base):
         change_ego_init_velocity(datum, speed)
         if not skip_overlap:
             change_gvt_init_pos(datum, overlap, overlap_settings[3])
-            write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6)), overlap_rate=str(overlap)))
+            write_xosc(datum, generate_scenario_name(base,speed=str(round(float(speed)*3.6)), overlap_rate=str(overlap)))
         else:
-            write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6))))
-
-    # for speed in speeds:
-    #     for overlap in overlaps:   
-    #         change_ego_init_velocity(datum, speed)
-    #         # write_xosc(datum, generate_scenario_name(base,speed=str(float(speed)*3.6)))
-    #         if not skip_overlap:
-    #             change_gvt_init_pos(datum, overlap, overlap_settings[3])
-    #             write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6)), overlap_rate=str(overlap)))
-    #         else:
-    #             write_xosc(datum, generate_scenario_name(base,speed=str(int(float(speed)*3.6))))
-    #     pass
+            write_xosc(datum, generate_scenario_name(base,speed=str(round(float(speed)*3.6))))
 
 def do_zip_compress(dirpath):
     # 修改自： https://blog.csdn.net/qq_39816613/article/details/125338232
@@ -366,14 +407,30 @@ def delete_intermediate_folder():
         os.system(f"rmdir /s/q {win_path}")
 
 def main():
-    # change_ego_init_velocity()
-    set_new_folder_suffix( input("请输入新生成的场景所在文件夹的后缀(默认为new):") )
-    option = input("批量修改请按1, 泛化请按2: ")
-    operate_path = input("请输入xosc所在的文件夹路径(根目录): ") if option == '1' else "./"
+    global CONFIG
+    CONFIG = JSON_Loader()
+    if CONFIG.config['auto_mode']:
+        set_new_folder_suffix(CONFIG.config['suffix'])
+        print(f"新生成的场景所在文件夹的后缀为：{INIT_NEW_FOLDER_NAME}")
+        option = CONFIG.config['function']
+        if option == "1":
+            print("将启动批量修改功能")
+        elif option == "2":
+            print("将启动泛化功能")
+        operate_path = CONFIG.config['root_path']
+        pass
+    else:
+        set_new_folder_suffix( input("请输入新生成的场景所在文件夹的后缀(默认为new):") )
+        option = input("批量修改请按1, 泛化请按2: ")
+        operate_path = input("请输入xosc所在的文件夹路径(根目录): ") if option == '1' else "./"
     print(f"将在 [{operate_path}] 路径下执行本程序...")
 
     if option == "1":
-        batch_modifier = Batch_modifier()
+        if CONFIG.config['auto_mode']:
+            batch_modifier = Batch_modifier(CONFIG.config)
+        else:
+            batch_modifier = Batch_modifier()
+
         for root, dirs, files in os.walk(operate_path):
             if is_new(root):                                # 如果目录是之前运行该脚本时生成的，则跳过该次循环
                 continue
@@ -384,12 +441,12 @@ def main():
 
             batch_modifier.batch_modify(fnames)
             do_zip_compress(NEW_FOLDER_NAME)
-
-            if platform.system() == 'Linux':
-                os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
-            elif platform.system() == 'Windows':
-                win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
-                os.system(f"rmdir /s/q {win_path}")
+            delete_intermediate_folder()
+            # if platform.system() == 'Linux':
+            #     os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
+            # elif platform.system() == 'Windows':
+            #     win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
+            #     os.system(f"rmdir /s/q {win_path}")
 
     elif option == "2":
         fnames = read_xosc()

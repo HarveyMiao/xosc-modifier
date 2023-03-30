@@ -1,7 +1,7 @@
 # Xosc-modifier
 ## Info
 Author: Harvey Miao  
-Python Version: 3.8.15
+Python Version: 3.8.15  
 概括: 基于Openscenario 1.x协议，对已有的场景文件进行批量修改或泛化  
 ## 支持功能
 ### 批量修改

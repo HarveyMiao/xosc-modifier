@@ -14,3 +14,4 @@ global INIT_NEW_FOLDER_NAME
 global NEW_FOLDER_NAME
 global PATH_
 global OVERLAP_COUNT
+global CONFIG
