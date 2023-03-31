@@ -58,25 +58,32 @@ def overlap_count():
     OVERLAP_COUNT = OVERLAP_COUNT + 1
     return OVERLAP_COUNT
 
-def read_xosc(dirpath='./'):
+def set_new_folder_name(dirpath='./', addition=None):
+    global NEW_FOLDER_NAME
+    if addition == None:
+        NEW_FOLDER_NAME = '_'.join([dirpath, INIT_NEW_FOLDER_NAME])
+    else:
+        NEW_FOLDER_NAME = '_'.join([dirpath + addition, INIT_NEW_FOLDER_NAME])
+
+def read_xosc(dirpath='./', strict=False):
     '''
     批量读取xosc文件名
     @param dirpath: 文件路径，默认值为./
+    @oaram strict: 如果是True, 则在读取不到xosc时报错
     @return 包含xosc文件名的list
     '''
     global PATH_
-    global NEW_FOLDER_NAME    
+    # global NEW_FOLDER_NAME    
 
     # dirpath = input("请输入xosc所在的文件夹路径: ")
     # PATH_ = dirpath if dirpath != "" else "./"
     PATH_ = dirpath
-    NEW_FOLDER_NAME = INIT_NEW_FOLDER_NAME
-    NEW_FOLDER_NAME = '_'.join([dirpath, NEW_FOLDER_NAME])
+    # NEW_FOLDER_NAME = '_'.join([dirpath, INIT_NEW_FOLDER_NAME])
 
     print(f"正在读取{dirpath}下的xosc...")
     files_name = [filename for filename in os.listdir(PATH_) if "xosc" in filename ]
     print (f"一共读取到{len(files_name)}个xosc文件\n读取到的xosc文件: {files_name}")
-    if len(files_name) == 0:
+    if strict == True and len(files_name) == 0:
         raise FileExistsError(f"at least one xosc required")
     return files_name
 
@@ -261,7 +268,9 @@ def load_params(input_: dict, number_of_params = 3):
         if param != "":
             params.append(float(param))
             count = count + 1
-    if count == number_of_params:
+    if count > 0 and count != number_of_params:
+        raise ValueError("Not enough input parameters")
+    elif count == number_of_params:
         skip = False
     return params, skip
 
@@ -417,7 +426,7 @@ def main():
             print("将启动批量修改功能")
         elif option == "2":
             print("将启动泛化功能")
-        operate_path = CONFIG.config['root_path']
+        operate_path = CONFIG.config['root_path'] if option == '1' else "./"
         pass
     else:
         set_new_folder_suffix( input("请输入新生成的场景所在文件夹的后缀(默认为new):") )
@@ -434,6 +443,7 @@ def main():
         for root, dirs, files in os.walk(operate_path):
             if is_new(root):                                # 如果目录是之前运行该脚本时生成的，则跳过该次循环
                 continue
+            set_new_folder_name(root)
             fnames = read_xosc(root)
             print("\n")
             if len(fnames) == 0:
@@ -449,7 +459,8 @@ def main():
             #     os.system(f"rmdir /s/q {win_path}")
 
     elif option == "2":
-        fnames = read_xosc()
+        fnames = read_xosc(strict=True)
+        set_new_folder_name(addition=fnames[0].split('_')[0])
         generalize(fnames[0])
         do_zip_compress(NEW_FOLDER_NAME)
         delete_intermediate_folder()
