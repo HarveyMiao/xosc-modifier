@@ -167,11 +167,11 @@ def change_ego(tree: ET.ElementTree):
     '''
     # 读取模型JSON文件
     model_file = [filename for filename in os.listdir("./") if "json" in filename ]
-    try:
+    if 'agents.json' in model_file:
         model_file.remove('agents.json')
+    if 'config.json' in model_file:
         model_file.remove('config.json')
-    except:
-        pass
+    
     with open(f"./{model_file[0]}",'r', encoding='utf-8') as fp:
         vmodel = json.load(fp)
     # TODO JSON文件中没有BoundingBox的相关信息，暂时不知道对仿真的影响(推测会影响真值GT获取)。可能需要手动填写
@@ -332,8 +332,8 @@ class Batch_modifier:
             # tree = ET.parse(fname)
             tree = ET.parse(os.path.join(PATH_,fname))
             if len(self.speed) != 0: 
-                # fname = generate_scenario_name(fname, self.speed)
-                fname = generate_scenario_name(fname, "30")
+                fname = generate_scenario_name(fname, self.speed)
+                # fname = generate_scenario_name(fname, "30")
                 speedm = str(float(self.speed)/3.6)
                 tree = change_ego_init_velocity(tree, speedm)
             if len(self.end_trigger_time) != 0:
@@ -452,12 +452,7 @@ def main():
             batch_modifier.batch_modify(fnames)
             do_zip_compress(NEW_FOLDER_NAME)
             delete_intermediate_folder()
-            # if platform.system() == 'Linux':
-            #     os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
-            # elif platform.system() == 'Windows':
-            #     win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
-            #     os.system(f"rmdir /s/q {win_path}")
-
+            
     elif option == "2":
         fnames = read_xosc(strict=True)
         set_new_folder_name(addition=fnames[0].split('_')[0])
