@@ -6,10 +6,12 @@
     "root_path": "./CNCAP/CCRs",
     "batch_modify_params": {
         "speed": "",
-        "end_trigger_time": "",
-        "gvt_name": "",
+        "end_trigger_time": "50",
+        "gvt_path": "./test",
+        "gvt_name": "AudiA2",
         "_ego_comment": "y为更换主车, n为不更换",
-        "ego": "y"
+        "ego": "y",
+        "ego_path": "./test"
     },
     "generalize_params": {
         "speed_gen": {

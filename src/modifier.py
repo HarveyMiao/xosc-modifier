@@ -6,10 +6,14 @@ Python version: 3.8.15
 Purpose: 批量修改或创建OpenScenario文件 (基于OpenScenario 1.4测试)
 Comment: 主车替换功能不完备(无从获取主车的某些参数, 包括Bounding Box, maxAcceleration等), 建议还是用51进行替换。
 '''
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+# print(os.getcwd())
+
 import xml.etree.ElementTree as ET
 from itertools import product as cartesianProduct
 import json
-import os
 import zipfile
 import platform
 from global_var import *
@@ -32,10 +36,10 @@ PATH_ = "./"
 OVERLAP_COUNT = 0
 
 class JSON_Loader:
-    def __init__(self) -> None:
+    def __init__(self, dirpath="./") -> None:
         try:
             print("读取config.json中...")
-            with open("./config.json", "+r", encoding="utf-8") as fp:
+            with open(os.path.join(dirpath, "config.json"), "+r", encoding="utf-8") as fp:
                 self.__config = json.load(fp)
                 print("读取完毕")
         except OSError as e:
@@ -157,7 +161,7 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 
 # 修改主车模型，不建议用，无从获知boundingBox信息
 # 建议将场景导出51后，再在导入时批量修改主车模型
-def change_ego(tree: ET.ElementTree):
+def change_ego(tree: ET.ElementTree, dirpath="./"):
     '''
     修改主车模型\n
     不建议用, 无从获知boundingBox信息。
@@ -166,13 +170,13 @@ def change_ego(tree: ET.ElementTree):
     @return tree: 修改后的ElementTree
     '''
     # 读取模型JSON文件
-    model_file = [filename for filename in os.listdir("./") if "json" in filename ]
+    model_file = [filename for filename in os.listdir(dirpath) if "json" in filename ]
     if 'agents.json' in model_file:
         model_file.remove('agents.json')
     if 'config.json' in model_file:
         model_file.remove('config.json')
     
-    with open(f"./{model_file[0]}",'r', encoding='utf-8') as fp:
+    with open(os.path.join(dirpath, f"{model_file[0]}"),'r', encoding='utf-8') as fp:
         vmodel = json.load(fp)
     # TODO JSON文件中没有BoundingBox的相关信息，暂时不知道对仿真的影响(推测会影响真值GT获取)。可能需要手动填写
     # 获取主车的元素
@@ -189,7 +193,7 @@ def change_ego(tree: ET.ElementTree):
     # controller_element.find("./Controller/Properties/Property").set('value',vmodel['controller']['name'])
     return tree
 
-def change_gvt(tree: ET.ElementTree, new_agent: str):
+def change_gvt(tree: ET.ElementTree, new_agent: str, dirpath="./"):
     '''
     修改对手车模型
     @param tree: 原场景的ElementTree
@@ -198,7 +202,7 @@ def change_gvt(tree: ET.ElementTree, new_agent: str):
     '''
     # 读取模型JSON文件
     try:
-        with open(f"./agents.json",'r',encoding='utf-8') as fp:
+        with open(os.path.join(dirpath, "agents.json"),'r',encoding='utf-8') as fp:
             agent_dict = json.load(fp)
     except OSError:
         print("Error: 当前目录下没有agents.json\n程序终止...")
@@ -303,17 +307,22 @@ class Batch_modifier:
     def __init__(self) -> None:
         print("批量修改功能已启动~")
         print("接下来请输入需要统一修改的参数的值，不输入则默认为不修改")
+        self.gvt_path = input("agents.json的文件路径")
+        self.ego_path = input("主车JSON的文件路径")
         self.speed = input ("需要将速度修改为(km/h): ")
         self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
         self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
         self.ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
         self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
-    
+
+
     def __init__(self, config: dict) -> None:
         print("批量修改功能已启动~")
         self.speed = config['batch_modify_params']['speed']
         self.end_trigger_time = config['batch_modify_params']['end_trigger_time']
         self.gvt = config['batch_modify_params']['gvt_name']
+        self.gvt_path = config['batch_modify_params']['gvt_path']
+        self.ego_path = config['batch_modify_params']['ego_path']
         self.ego = config['batch_modify_params']['ego']
         self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
 
@@ -339,9 +348,9 @@ class Batch_modifier:
             if len(self.end_trigger_time) != 0:
                 tree = change_end_trigger(tree, self.end_trigger_time)
             if self.ego:
-                tree = change_ego(tree)
+                tree = change_ego(tree, self.ego_path)
             if len(self.gvt) != 0:
-                tree = change_gvt(tree,self.gvt)
+                tree = change_gvt(tree,self.gvt, self.gvt_path)
             write_xosc(tree, fname)
 
 # 泛化模块
@@ -417,7 +426,7 @@ def delete_intermediate_folder():
 
 def main():
     global CONFIG
-    CONFIG = JSON_Loader()
+    CONFIG = JSON_Loader("./test")
     if CONFIG.config['auto_mode']:
         set_new_folder_suffix(CONFIG.config['suffix'])
         print(f"新生成的场景所在文件夹的后缀为：{INIT_NEW_FOLDER_NAME}")
