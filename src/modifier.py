@@ -161,21 +161,32 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 
 # 修改主车模型，不建议用，无从获知boundingBox信息
 # 建议将场景导出51后，再在导入时批量修改主车模型
-def change_ego(tree: ET.ElementTree, dirpath="./"):
+def change_ego(tree: ET.ElementTree, ego_name, dirpath="./"):
     '''
     修改主车模型\n
     不建议用, 无从获知boundingBox信息。
     建议将场景导出51后, 再在导入时批量修改主车模型
     @param tree: 原场景的ElementTree
+    @param ego_name: 主车模型的名字
     @return tree: 修改后的ElementTree
     '''
     # 读取模型JSON文件
-    model_file = [filename for filename in os.listdir(dirpath) if "json" in filename ]
-    if 'agents.json' in model_file:
-        model_file.remove('agents.json')
-    if 'config.json' in model_file:
-        model_file.remove('config.json')
+    # model_file = [filename for filename in os.listdir(dirpath) if "json" in filename ]
+    # if 'agents.json' in model_file:
+    #     model_file.remove('agents.json')
+    # if 'config.json' in model_file:
+    #     model_file.remove('config.json')
     
+    model_file = [filename for filename in os.listdir(dirpath) if ("json" in filename and ego_name in filename) ]
+    if len(model_file) > 1:
+        print("Error: 输入的主车的名字匹配到复数目标, 请输入更精准的名字\n程序终止...")
+        input('Press Enter to exit...')
+        exit()
+    elif len(model_file) == 0:
+        print("Error: 没有匹配的主车json文件, 请输入正确的名字\n程序终止...")
+        input('Press Enter to exit...')
+        exit()
+
     with open(os.path.join(dirpath, f"{model_file[0]}"),'r', encoding='utf-8') as fp:
         vmodel = json.load(fp)
     # TODO JSON文件中没有BoundingBox的相关信息，暂时不知道对仿真的影响(推测会影响真值GT获取)。可能需要手动填写
@@ -313,8 +324,8 @@ class Batch_modifier:
         self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
         self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
         self.ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
-        self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
-
+        # self.change_ego = True if (self.ego == 'y' or self.ego == 'Y') else False
+        self.change_ego = False if self.ego == "" else True
 
     def __init__(self, config: dict) -> None:
         print("批量修改功能已启动~")
@@ -324,13 +335,14 @@ class Batch_modifier:
         self.gvt_path = config['batch_modify_params']['gvt_path']
         self.ego_path = config['batch_modify_params']['ego_path']
         self.ego = config['batch_modify_params']['ego']
-        self.ego = True if (self.ego == 'y' or self.ego == 'Y') else False
+        # self.change_ego = True if (self.ego == 'y' or self.ego == 'Y') else False
+        self.change_ego = False if self.ego == "" else True
 
         if len(self.speed) != 0: 
             print(f"速度将被修改为{self.speed} km/h")
         if len(self.end_trigger_time) != 0: 
             print(f"场景结束时间将被修改为{self.end_trigger_time} s")
-        if self.ego:
+        if self.change_ego:
             print(f"主车将被修改")
         if len(self.gvt) != 0:
             print(f"对手车将被修改为{self.gvt}")
@@ -348,7 +360,7 @@ class Batch_modifier:
             if len(self.end_trigger_time) != 0:
                 tree = change_end_trigger(tree, self.end_trigger_time)
             if self.ego:
-                tree = change_ego(tree, self.ego_path)
+                tree = change_ego(tree, self.ego, self.ego_path)
             if len(self.gvt) != 0:
                 tree = change_gvt(tree,self.gvt, self.gvt_path)
             write_xosc(tree, fname)
