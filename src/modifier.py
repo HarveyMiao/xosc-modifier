@@ -438,7 +438,7 @@ def delete_intermediate_folder():
 
 def main():
     global CONFIG
-    CONFIG = JSON_Loader("./test")
+    CONFIG = JSON_Loader("./")
     if CONFIG.config['auto_mode']:
         set_new_folder_suffix(CONFIG.config['suffix'])
         print(f"新生成的场景所在文件夹的后缀为：{INIT_NEW_FOLDER_NAME}")

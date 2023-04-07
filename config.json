@@ -1,0 +1,28 @@
+{
+    "auto_mode": true,
+    "_function_comment": "function 1为批量修改, 2为泛化",
+    "function": "1",
+    "suffix": "blah",
+    "root_path": "./CNCAP",
+    "batch_modify_params": {
+        "speed": "",
+        "end_trigger_time": "",
+        "gvt_path": "",
+        "gvt_name": "",
+        "ego": "主车_J5",
+        "ego_path": "./test"
+    },
+    "generalize_params": {
+        "speed_gen": {
+            "min_speed": "",
+            "max_speed": "",
+            "increment": ""
+        },
+        "overlap_gen": {
+            "min_overlap": "-50",
+            "max_overlap": "50",
+            "increment": "25",
+            "gvt_width": "3"
+        }
+    }
+}
