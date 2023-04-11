@@ -26,6 +26,7 @@ EGO_MODEL_XPATH = ".//Entities/ScenarioObject[@name='Ego']"
 EGO_NAME_XPATH = EGO_MODEL_XPATH + "/Vehicle"
 EGO_CONTROLLER_XPATH = EGO_MODEL_XPATH + "/ObjectController"
 EGO_PROPERTIES_XPATH = EGO_NAME_XPATH + "/Properties"
+EGO_BOUNDINGBOX_XPATH = EGO_NAME_XPATH + "/BoundingBox"
 AGENT_MODEL_XPATH = ".//Entities/ScenarioObject[2]"                     # 假设对手目标是第二个scenarioObject
 AGENT_NAME_XPATH = AGENT_MODEL_XPATH + "/Vehicle"
 AGENT_PROPERTIES_XPATH = AGENT_NAME_XPATH + "/Properties"
@@ -161,21 +162,17 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 
 # 修改主车模型，不建议用，无从获知boundingBox信息
 # 建议将场景导出51后，再在导入时批量修改主车模型
-def change_ego(tree: ET.ElementTree, ego_name, dirpath="./"):
+def change_ego(tree: ET.ElementTree, ego_name: str, boundingBox: list, dirpath="./"):
     '''
     修改主车模型\n
     不建议用, 无从获知boundingBox信息。
     建议将场景导出51后, 再在导入时批量修改主车模型
     @param tree: 原场景的ElementTree
     @param ego_name: 主车模型的名字
+    @param boundingBox: Bounding box的尺寸, 格式为[高 长 宽]
+    @param dirpath: 主车json文件的路径
     @return tree: 修改后的ElementTree
     '''
-    # 读取模型JSON文件
-    # model_file = [filename for filename in os.listdir(dirpath) if "json" in filename ]
-    # if 'agents.json' in model_file:
-    #     model_file.remove('agents.json')
-    # if 'config.json' in model_file:
-    #     model_file.remove('config.json')
     
     model_file = [filename for filename in os.listdir(dirpath) if ("json" in filename and ego_name in filename) ]
     if len(model_file) > 1:
@@ -189,19 +186,24 @@ def change_ego(tree: ET.ElementTree, ego_name, dirpath="./"):
 
     with open(os.path.join(dirpath, f"{model_file[0]}"),'r', encoding='utf-8') as fp:
         vmodel = json.load(fp)
-    # TODO JSON文件中没有BoundingBox的相关信息，暂时不知道对仿真的影响(推测会影响真值GT获取)。可能需要手动填写
+    # TODO JSON文件中没有BoundingBox的相关信息，暂时不知道对仿真的影响
     # 获取主车的元素
     OpenSCENARIO = tree.getroot()
     name_element = OpenSCENARIO.find(EGO_NAME_XPATH)
     properties_element = OpenSCENARIO.find(EGO_PROPERTIES_XPATH)
     controller_element = OpenSCENARIO.find(EGO_CONTROLLER_XPATH)
-    
+    boundingBox_element = OpenSCENARIO.find(EGO_BOUNDINGBOX_XPATH + '/Dimensions')
+
     # 写入新主车模型的参数
     name_element.set('name',vmodel['id'])
     properties_element.find("./Property[@name='model']").set('value',vmodel['id'])
     properties_element.find("./Property[@name='name']").set('value',vmodel['name'])
     # controller_element.find("./Controller").set('name',vmodel['controller']['name'])
     # controller_element.find("./Controller/Properties/Property").set('value',vmodel['controller']['name'])
+    boundingBox_element.set('height', boundingBox[0])
+    boundingBox_element.set('length', boundingBox[1])
+    boundingBox_element.set('width', boundingBox[2])
+        
     return tree
 
 def change_gvt(tree: ET.ElementTree, new_agent: str, dirpath="./"):
@@ -315,37 +317,44 @@ def generate_scenario_name(datum: str, speed: str, overlap_rate: str=None):
 
 # 批量修改模块
 class Batch_modifier:
-    def __init__(self) -> None:
-        print("批量修改功能已启动~")
-        print("接下来请输入需要统一修改的参数的值，不输入则默认为不修改")
-        self.gvt_path = input("agents.json的文件路径")
-        self.ego_path = input("主车JSON的文件路径")
-        self.speed = input ("需要将速度修改为(km/h): ")
-        self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
-        self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
-        self.ego = input("是否更改主车模型为当前目录下的模型？(y/n): ")
-        # self.change_ego = True if (self.ego == 'y' or self.ego == 'Y') else False
-        self.change_ego = False if self.ego == "" else True
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict = None) -> None:
         print("批量修改功能已启动~")
-        self.speed = config['batch_modify_params']['speed']
-        self.end_trigger_time = config['batch_modify_params']['end_trigger_time']
-        self.gvt = config['batch_modify_params']['gvt_name']
-        self.gvt_path = config['batch_modify_params']['gvt_path']
-        self.ego_path = config['batch_modify_params']['ego_path']
-        self.ego = config['batch_modify_params']['ego']
-        # self.change_ego = True if (self.ego == 'y' or self.ego == 'Y') else False
-        self.change_ego = False if self.ego == "" else True
+        if config == None:              # 手动输入模式
+            print("接下来请输入需要统一修改的参数的值，不输入则默认为不修改")
+            self.speed = input ("需要将速度修改为(km/h): ")
+            self.end_trigger_time = input ("需要将结束触发器设置为(s): ")
+            self.gvt = input("需要将对手车模型修改为(输入agents.json下的任意车型): ")
+            if len(self.gvt) != 0:
+                self.gvt_path = input("agents.json的文件路径为:")
+            self.ego = input("需要将主车更改为(输入主车json的名字): ")
+            self.change_ego = False if self.ego == "" else True
+            if change_ego:
+                self.ego_path = input("主车JSON的文件路径为:")
+                self.boundingBox = input("需要将主车的BoundingBox修改为(依次输入高, 长, 宽(m),以空格分隔开):")
+                self.boundingBox = self.boundingBox.split(" ")
+        else:                           # 读取config模式
+            self.speed = config['batch_modify_params']['speed']
+            self.end_trigger_time = config['batch_modify_params']['end_trigger_time']
+            self.gvt = config['batch_modify_params']['gvt_name']
+            self.gvt_path = config['batch_modify_params']['gvt_path']
+            self.ego_path = config['batch_modify_params']['ego_path']
+            self.ego = config['batch_modify_params']['ego']
+            self.boundingBox = config['batch_modify_params']['boundingBox'].split(" ")
+            self.change_ego = False if self.ego == "" else True
 
-        if len(self.speed) != 0: 
-            print(f"速度将被修改为{self.speed} km/h")
-        if len(self.end_trigger_time) != 0: 
-            print(f"场景结束时间将被修改为{self.end_trigger_time} s")
-        if self.change_ego:
-            print(f"主车将被修改")
-        if len(self.gvt) != 0:
-            print(f"对手车将被修改为{self.gvt}")
+            if len(self.speed) != 0: 
+                print(f"速度将被修改为{self.speed} km/h")
+            if len(self.end_trigger_time) != 0: 
+                print(f"场景结束时间将被修改为{self.end_trigger_time} s")
+            if self.change_ego:
+                print(f"主车将被修改")
+                if len(self.boundingBox) == 1 and self.boundingBox[0] == '':
+                    print("没读取到Bounding Box输入, 将不对Bounding Box进行修改")
+                else:
+                    print(f"读取到Bounding Box输入, Bounding Box将被修改为{self.boundingBox}")       
+            if len(self.gvt) != 0:
+                print(f"对手车将被修改为{self.gvt}")
 
     def batch_modify(self, fnames):
         # 依次将需要修改的参数写入树中
@@ -360,7 +369,7 @@ class Batch_modifier:
             if len(self.end_trigger_time) != 0:
                 tree = change_end_trigger(tree, self.end_trigger_time)
             if self.ego:
-                tree = change_ego(tree, self.ego, self.ego_path)
+                tree = change_ego(tree, self.ego, self.boundingBox, self.ego_path)
             if len(self.gvt) != 0:
                 tree = change_gvt(tree,self.gvt, self.gvt_path)
             write_xosc(tree, fname)
@@ -384,7 +393,6 @@ def generalize(base):
     if skip_speed:
         speeds = [datum_vel.attrib['value']]
     else:
-        speeds = []
         speeds = [str(num/3.6) for num in range(int(speed_settings[0]),int(speed_settings[1])+int(speed_settings[2]),int(speed_settings[2]))]
     if skip_overlap:
         overlaps = [0]
@@ -431,7 +439,7 @@ def is_new(dirpath):
 
 def delete_intermediate_folder():
     if platform.system() == 'Linux':
-                os.system(f'rm -rf {NEW_FOLDER_NAME}')                  # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
+                os.system(f'rm -rf {NEW_FOLDER_NAME}')          # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
     elif platform.system() == 'Windows':
         win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
         os.system(f"rmdir /s/q {win_path}")

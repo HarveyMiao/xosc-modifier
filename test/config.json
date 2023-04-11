@@ -1,7 +1,7 @@
 {
     "auto_mode": true,
     "_function_comment": "function 1为批量修改, 2为泛化",
-    "function": "1",
+    "function": "2",
     "suffix": "blah",
     "root_path": "./CNCAP",
     "batch_modify_params": {
@@ -14,9 +14,9 @@
     },
     "generalize_params": {
         "speed_gen": {
-            "min_speed": "",
-            "max_speed": "",
-            "increment": ""
+            "min_speed": "20",
+            "max_speed": "40",
+            "increment": "10"
         },
         "overlap_gen": {
             "min_overlap": "-50",
