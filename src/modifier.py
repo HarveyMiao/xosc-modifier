@@ -1,7 +1,7 @@
 '''
 Author: Haihui Miao
 Date: 2023/2/1
-Last Updated: 2023/2/6
+Last Updated: 2023/4/11
 Python version: 3.8.15
 Purpose: 批量修改或创建OpenScenario文件 (基于OpenScenario 1.4测试)
 Comment: 主车替换功能不完备(无从获取主车的某些参数, 包括Bounding Box, maxAcceleration等), 建议还是用51进行替换。
@@ -16,6 +16,7 @@ from itertools import product as cartesianProduct
 import json
 import zipfile
 import platform
+from functools import reduce
 from global_var import *
 
 INIT_PRIVATE_XPATH = "./Storyboard/Init/Actions/Private"
@@ -78,12 +79,7 @@ def read_xosc(dirpath='./', strict=False):
     @return 包含xosc文件名的list
     '''
     global PATH_
-    # global NEW_FOLDER_NAME    
-
-    # dirpath = input("请输入xosc所在的文件夹路径: ")
-    # PATH_ = dirpath if dirpath != "" else "./"
     PATH_ = dirpath
-    # NEW_FOLDER_NAME = '_'.join([dirpath, INIT_NEW_FOLDER_NAME])
 
     print(f"正在读取{dirpath}下的xosc...")
     files_name = [filename for filename in os.listdir(PATH_) if "xosc" in filename ]
@@ -211,6 +207,7 @@ def change_gvt(tree: ET.ElementTree, new_agent: str, dirpath="./"):
     修改对手车模型
     @param tree: 原场景的ElementTree
     @param new_agent: 新对手车的名字
+    @param dirpath: agents.json的路径
     @return tree: 修改后的ElementTree
     '''
     # 读取模型JSON文件
@@ -218,7 +215,7 @@ def change_gvt(tree: ET.ElementTree, new_agent: str, dirpath="./"):
         with open(os.path.join(dirpath, "agents.json"),'r',encoding='utf-8') as fp:
             agent_dict = json.load(fp)
     except OSError:
-        print("Error: 当前目录下没有agents.json\n程序终止...")
+        print("Error: 指定目录下没有agents.json\n程序终止...")
         input('Press Enter to exit...')
         exit()
     agents = agent_dict['agent_type']
@@ -291,8 +288,14 @@ def load_params(input_: dict, number_of_params = 3):
         skip = False
     return params, skip
 
-# 基于基准场景生成新场景的名字
 def generate_scenario_name(datum: str, speed: str, overlap_rate: str=None):
+    '''
+    基于基准场景生成新场景的名字
+    @param datum: 基准场景文件名
+    @param speed: 新场景中的速度
+    @param overlap_rate: 新场景中的偏置率
+    @return : 新场景名
+    '''
     filename = datum.partition('.xosc')[0]
     casename = filename.split('_')
     if speed != None:
@@ -414,6 +417,10 @@ def generalize(base):
 
 def do_zip_compress(dirpath):
     # 修改自： https://blog.csdn.net/qq_39816613/article/details/125338232
+    '''
+    将原文件夹添加为压缩包
+    @param dirpath: 原始文件夹路径
+    '''
     print("原始文件夹路径：" + dirpath)
     output_name = f"{dirpath}.zip"
     parent_name = os.path.dirname(dirpath)
@@ -430,22 +437,43 @@ def do_zip_compress(dirpath):
             zip.write(filepath, writepath)
     print("压缩完成...\n")
 
-# 检测指定文件夹是否含有INIT_NEW_FOLDER_NAME
+
 def is_new(dirpath):
+    '''
+    检测指定文件夹是否含有INIT_NEW_FOLDER_NAME
+    @param dirpath: 文件夹路径
+    '''
     global INIT_NEW_FOLDER_NAME
     if INIT_NEW_FOLDER_NAME in dirpath.split('/')[-1]:
         return True
     return False
 
 def delete_intermediate_folder():
+    '''
+    删除NEW_FOLDER_NAME下的中间文件夹
+    '''
     if platform.system() == 'Linux':
                 os.system(f'rm -rf {NEW_FOLDER_NAME}')          # 删除原本的输出目录，仅保留压缩包 ------- 适用于UNIX
     elif platform.system() == 'Windows':
         win_path = '\\'.join(NEW_FOLDER_NAME.split('/'))        # 删除原本的输出目录，仅保留压缩包 ------- 适用于Windows
         os.system(f"rmdir /s/q {win_path}")
 
+def mkdir_wrapper(old, new):
+    new_path = os.path.join(old, new)
+    if not os.path.exists(new_path):
+        os.mkdir(new_path)
+    return new_path
+
+def init_outpath(dirpath: str):
+    if len(dirpath) != 0 and not os.path.exists(dirpath):
+            if platform.system() == "Linux":
+                reduce(mkdir_wrapper, dirpath.split('/'))
+            elif platform.system() == "Windows":
+                reduce(mkdir_wrapper, dirpath.split('\\'))
+
 def main():
     global CONFIG
+    global INIT_NEW_FOLDER_NAME
     CONFIG = JSON_Loader("./")
     if CONFIG.config['auto_mode']:
         set_new_folder_suffix(CONFIG.config['suffix'])
@@ -456,11 +484,15 @@ def main():
         elif option == "2":
             print("将启动泛化功能")
         operate_path = CONFIG.config['root_path'] if option == '1' else "./"
-        pass
+        output_path = CONFIG.config['output_path']
+        init_outpath(output_path)
     else:
         set_new_folder_suffix( input("请输入新生成的场景所在文件夹的后缀(默认为new):") )
         option = input("批量修改请按1, 泛化请按2: ")
         operate_path = input("请输入xosc所在的文件夹路径(根目录): ") if option == '1' else "./"
+        output_path = input("请输入xosc的输出路径:")
+        init_outpath(output_path)
+        
     print(f"将在 [{operate_path}] 路径下执行本程序...")
 
     if option == "1":
@@ -472,7 +504,12 @@ def main():
         for root, dirs, files in os.walk(operate_path):
             if is_new(root):                                # 如果目录是之前运行该脚本时生成的，则跳过该次循环
                 continue
-            set_new_folder_name(root)
+            if len(output_path) == 0:
+                set_new_folder_name(root)
+            else:
+                scenario_category = root.split('/')[-1]
+                output_folder = os.path.join(output_path, scenario_category)
+                set_new_folder_name(output_folder)
             fnames = read_xosc(root)
             print("\n")
             if len(fnames) == 0:
@@ -491,7 +528,7 @@ def main():
 
 if __name__ == "__main__":
     
-    print("温馨提示: 使用该脚本前, 请将需要修改的场景解压到单独一个文件夹下(支持批量处理指定路径下的次级文件夹) \n如需修改主车模型, 请将对应的JSON文件放置在当前目录下:)\n如需修改对手车模型, 请将agents.json文件放置在当前目录。该文件可以在51simone的安装目录下/Module/VehicleDynamics/obstacle下找到:3")
+    print("温馨提示: 使用该脚本前, 请将需要修改的场景解压到单独一个文件夹下(支持批量处理指定路径下的次级文件夹)\n如需修改对手车模型, 请正确输入agents.json文件所在路径。该文件可以在51simone的安装目录下/Module/VehicleDynamics/obstacle下找到:3")
     main()
     print("运行完毕┌(!￣◇￣)┘...")
     input("Press Enter to excit......")
