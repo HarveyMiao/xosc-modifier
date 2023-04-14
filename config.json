@@ -4,7 +4,7 @@
     "function": "1",
     "suffix": "blah",
     "root_path": "./CNCAP/CCRm",
-    "output_path": "./test",
+    "output_path": "./results",
     "batch_modify_params": {
         "speed": "",
         "end_trigger_time": "",
