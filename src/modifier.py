@@ -161,8 +161,7 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 def change_ego(tree: ET.ElementTree, ego_name: str, boundingBox: list, dirpath="./"):
     '''
     修改主车模型\n
-    不建议用, 无从获知boundingBox信息。
-    建议将场景导出51后, 再在导入时批量修改主车模型
+    相较于该功能, 建议尝试将场景导出51后, 再在导入时批量修改主车模型
     @param tree: 原场景的ElementTree
     @param ego_name: 主车模型的名字
     @param boundingBox: Bounding box的尺寸, 格式为[高 长 宽]
@@ -470,7 +469,7 @@ def init_outpath(dirpath: str):
                 reduce(mkdir_wrapper, dirpath.split('/'))
             elif platform.system() == "Windows":
                 reduce(mkdir_wrapper, dirpath.split('\\'))
-
+                
 def main():
     global CONFIG
     global INIT_NEW_FOLDER_NAME

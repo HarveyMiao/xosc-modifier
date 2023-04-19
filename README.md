@@ -11,11 +11,11 @@ Python Version: 3.8.15
 ## 支持功能
 ### 批量修改
 1. 主车速度
-2. 结束触发器
+2. 结束时间
 3. 对手车模型
-4. 主车模型
+4. 主车模型 (Bounding Box需要手动输入)
 ### 场景泛化
-1. 主车速递
+1. 主车速度
 2. 偏置率（仅限C2C场景）
 ## 使用说明
 1. 首先把51simone中导出的场景文件解压缩  
@@ -25,3 +25,5 @@ Python Version: 3.8.15
 3. 运行 ``python3 modifier.py`` 或打开目录下的modifier.exe,
 ## 注意事项
 1. 运行环境为Windows时，config.json中的output_path需要使用windows的格式，例：``.\\results\\foo``
+## 备注
+- 打包指令：``pyinstaller.exe -F -c -i .\image\modifier.ico .\src\modifier.py`` （Windows powershell）
