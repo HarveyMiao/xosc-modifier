@@ -158,7 +158,7 @@ def change_end_trigger(tree: ET.ElementTree, terminate_trigger_time):
 
 # 修改主车模型，不建议用，无从获知boundingBox信息
 # 建议将场景导出51后，再在导入时批量修改主车模型
-def change_ego(tree: ET.ElementTree, ego_name: str, boundingBox: list, dirpath="./"):
+def change_ego(tree: ET.ElementTree, ego_name: str, boundingBox: list=None, dirpath="./"):
     '''
     修改主车模型\n
     相较于该功能, 建议尝试将场景导出51后, 再在导入时批量修改主车模型
@@ -195,9 +195,10 @@ def change_ego(tree: ET.ElementTree, ego_name: str, boundingBox: list, dirpath="
     properties_element.find("./Property[@name='name']").set('value',vmodel['name'])
     # controller_element.find("./Controller").set('name',vmodel['controller']['name'])
     # controller_element.find("./Controller/Properties/Property").set('value',vmodel['controller']['name'])
-    boundingBox_element.set('height', boundingBox[0])
-    boundingBox_element.set('length', boundingBox[1])
-    boundingBox_element.set('width', boundingBox[2])
+    if len(boundingBox) == 3:
+        boundingBox_element.set('height', boundingBox[0])
+        boundingBox_element.set('length', boundingBox[1])
+        boundingBox_element.set('width', boundingBox[2])
         
     return tree
 
@@ -352,9 +353,12 @@ class Batch_modifier:
             if self.change_ego:
                 print(f"主车将被修改")
                 if len(self.boundingBox) == 1 and self.boundingBox[0] == '':
-                    print("没读取到Bounding Box输入, 将不对Bounding Box进行修改")
+                    print("没读取到Bounding Box输入, 将不对Bounding Box进行修改\n")
+                elif len(self.boundingBox) != 3:
+                    self.boundingBox = ['']
+                    print("Bounding Box输入参数数量不正确, 将不对Bounding Box进行修改\n")
                 else:
-                    print(f"读取到Bounding Box输入, Bounding Box将被修改为{self.boundingBox}")       
+                    print(f"读取到Bounding Box输入, Bounding Box将被修改为{self.boundingBox}\n")       
             if len(self.gvt) != 0:
                 print(f"对手车将被修改为{self.gvt}")
 
@@ -465,15 +469,15 @@ def mkdir_wrapper(old, new):
 
 def init_outpath(dirpath: str):
     if len(dirpath) != 0 and not os.path.exists(dirpath):
-            if platform.system() == "Linux":
-                reduce(mkdir_wrapper, dirpath.split('/'))
-            elif platform.system() == "Windows":
+        if platform.system() == "Linux":
+            reduce(mkdir_wrapper, dirpath.split('/'))
+        elif platform.system() == "Windows":
                 reduce(mkdir_wrapper, dirpath.split('\\'))
                 
-def main():
+def main(configPath="./"):
     global CONFIG
     global INIT_NEW_FOLDER_NAME
-    CONFIG = JSON_Loader("./")
+    CONFIG = JSON_Loader(configPath)
     if CONFIG.config['auto_mode']:
         set_new_folder_suffix(CONFIG.config['suffix'])
         print(f"新生成的场景所在文件夹的后缀为：{INIT_NEW_FOLDER_NAME}")
@@ -528,6 +532,6 @@ def main():
 if __name__ == "__main__":
     
     print("温馨提示: 使用该脚本前, 请将需要修改的场景解压到单独一个文件夹下(支持批量处理指定路径下的次级文件夹)\n如需修改对手车模型, 请正确输入agents.json文件所在路径。该文件可以在51simone的安装目录下/Module/VehicleDynamics/obstacle下找到:3")
-    main()
+    main("./")
     print("运行完毕┌(!￣◇￣)┘...")
     input("Press Enter to excit......")
