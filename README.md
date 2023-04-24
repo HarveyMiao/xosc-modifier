@@ -21,7 +21,8 @@ Python Version: 3.8.15
 1. 首先把51simone中导出的场景文件解压缩  
 支持如下图所示的文件夹树结构  
 ![树状图](./image/file-tree.png "tree")
-2. 将config.json文件和modifer.py/modifier.exe放置在同一目录下，并按需修改config.json
+2. 将config.json文件和modifer.py/modifier.exe放置在同一目录下
+3. 配置config.json文件
 3. 运行 ``python3 modifier.py`` 或打开目录下的modifier.exe,
 ## 注意事项
 1. 运行环境为Windows时，config.json中的output_path需要使用windows的格式，例：``.\\results\\foo``
