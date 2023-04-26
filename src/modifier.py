@@ -472,7 +472,7 @@ def init_outpath(dirpath: str):
         if platform.system() == "Linux":
             reduce(mkdir_wrapper, dirpath.split('/'))
         elif platform.system() == "Windows":
-                reduce(mkdir_wrapper, dirpath.split('\\'))
+            reduce(mkdir_wrapper, dirpath.split('\\'))
                 
 def main(configPath="./"):
     global CONFIG

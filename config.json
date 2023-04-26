@@ -3,7 +3,7 @@
     "_function_comment": "function 1为批量修改, 2为泛化",
     "function": "1",
     "suffix": "blah",
-    "root_path": "./test/CNCAP/CCRm",
+    "root_path": "./test/CNCAP",
     "output_path": ".\\results",
     "batch_modify_params": {
         "speed": "",
