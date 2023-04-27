@@ -28,5 +28,6 @@ Python Version: 3.8.15
 1. 运行环境为Windows时，config.json中的output_path需要使用windows的格式，例：``.\\results\\foo``
 2. 如需修改对手车模型, 请正确输入agents.json文件所在路径。该文件可以在51simone的安装目录下``/Module/VehicleDynamics/obstacle``下找到
 3. 修改主车时，从51中导出对应的主车json文件即可
+4. 使用泛化功能时，基准文件需要放置在当前运行目录下
 ## 备注
 - 打包指令：``pyinstaller.exe -F -c -i .\image\modifier.ico .\src\modifier.py`` （Windows powershell）
